@@ -1,61 +1,49 @@
 package domotica;
 
+// ===== MultiClient Movimento =====
 import java.io.*;
 import java.net.*;
-public class Movimento {
-  String nomeServer ="localhost";                  // indirizzo server locale  
-  int portaServer   = 6789;                        // porta x servizio data e ora
-  Socket miosocket;                                
-  BufferedReader tastiera;                         // buffer per l'input da tastiera
-  String stringaUtente;                            // stringa inserita da utente
-  String stringaRicevutaDalServer;                 // stringa ricevuta dal server
-  DataOutputStream outVersoServer;                 // stream di output
-  BufferedReader inDalServer;                      // stream di input 
+import org.json.JSONObject;
+import java.util.Random;
 
-  public void comunica() {
-    for (;;)                                     // ciclo infinito: termina con FINE
-    try{
-      System.out.println("4 ... utente, inserisci la stringa da trasmettere al server:");
-      stringaUtente = tastiera.readLine();
-      //la spedisco al server 
-      System.out.println("5 ... invio la stringa al server e attendo ...");
-      outVersoServer.writeBytes( stringaUtente+'\n');
-      //leggo la risposta dal server 
-      stringaRicevutaDalServer=inDalServer.readLine();
-      System.out.println("7 ... risposta dal server "+'\n'+stringaRicevutaDalServer );
-      if  (stringaUtente.equals("FINE")) { 
-        System.out.println("8 CLIENT: termina elaborazione e chiude connessione" );
-        miosocket.close();                             // chiudo la connessione
-        break; 
-      }
-    } 
-    catch (Exception e) 
-    {
-      System.out.println(e.getMessage());
-      System.out.println("Errore durante la comunicazione col server!");
-      System.exit(1);
-    }
-  }
-  
-  public Socket connetti(){
-    System.out.println("2 CLIENT partito in esecuzione ...");
-    try{
-      // input da tastiera
-      tastiera = new BufferedReader(new InputStreamReader(System.in));
-      //  miosocket = new Socket(InetAddress.getLocalHost(), 6789);
-      miosocket = new Socket(nomeServer,portaServer);
-      // associo due oggetti al socket per effettuare la scrittura e la lettura 
-      outVersoServer = new DataOutputStream(miosocket.getOutputStream());
-      inDalServer    = new BufferedReader(new InputStreamReader (miosocket.getInputStream()));
-    } 
-    catch (UnknownHostException e){
-      System.err.println("Host sconosciuto"); } 
-    catch (Exception e){
-      System.out.println(e.getMessage());
-      System.out.println("Errore durante la connessione!");
-      System.exit(1);
-    }
-    return miosocket;
-  }
 
+public class MovimentoClient {
+	String server = "localhost";
+	int porta = 6789;
+
+
+	public String generaOra() {
+		Random r = new Random();
+		int h = r.nextInt(24);
+		int m = r.nextInt(60);
+		return String.format("%02d:%02d", h, m);
+	}
+	
+	
+	public String generaJSON() {
+		JSONObject obj = new JSONObject();
+		obj.put("id", "M1");
+		obj.put("tipo", "movimento");
+		obj.put("zona", "Cucina");
+		obj.put("ora", generaOra());
+		return obj.toString();
+	}
+	
+	
+	public void avvia() throws Exception {
+		Socket s = new Socket(server, porta);
+		BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		DataOutputStream out = new DataOutputStream(s.getOutputStream());
+		
+		
+		String json = generaJSON();
+		out.writeBytes(json + "
+		");
+		
+		
+		System.out.println("Risposta server: " + in.readLine());
+		
+		
+		s.close();
+	}
 }
