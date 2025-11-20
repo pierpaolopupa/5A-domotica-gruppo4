@@ -10,7 +10,7 @@ private String checkCont(JSONObject o) {
 	return v ? "PORTA APERTA in " + o.getString("zona") : "Porta chiusa";
 }
 
-class ServerThread extends Thread {
+class Server extends Thread {
 	private Socket client;
 	private BufferedReader inDalClient;
 	private DataOutputStream outVersoClient;

@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import java.util.Random;
 
 
-public class TemperaturaClient {
+public class Temperatura {
 	String server = "localhost";
 	int porta = 6789;
 	
