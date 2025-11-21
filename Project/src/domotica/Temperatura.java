@@ -1,36 +1,24 @@
-package domotica;
-
-// ===== MultiClient Temperatura =====
 import java.io.*;
 import java.net.*;
-import org.json.JSONObject;
 import java.util.Random;
 
 public class Temperatura {
-	String server = "localhost";
-	int porta = 6789;
-	
-	
-	public String generaJSON() {
-		Random r = new Random();
-		double valore = 20 + r.nextDouble() * 20;
-		JSONObject obj = new JSONObject();
-		obj.put("id", "T1");
-		obj.put("tipo", "temperatura");
-		obj.put("valore", valore);
-		return obj.toString();
-	}
-	
-	public void avvia() throws Exception {
-		Socket s = new Socket(server, porta);
-		BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-		DataOutputStream out = new DataOutputStream(s.getOutputStream());
-		
-		String json = generaJSON();
-		out.writeBytes(json + "");
-		
-		System.out.println("Risposta server: " + in.readLine());
-		
-		s.close();
-	}
+    public static void main(String[] args) {
+        Random rand = new Random();
+
+        try (Socket socket = new Socket("localhost", 5000);
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
+
+            System.out.println("[TEMPERATURA] Connesso al server.");
+
+            while (true) {
+                int valore = rand.nextInt(15) + 15; // temperatura tra 15 e 30
+                out.println("TEMPERATURA: " + valore + " °C");
+                Thread.sleep(2000);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
